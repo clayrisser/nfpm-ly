@@ -54,8 +54,9 @@ chroot: sudo debootstrap
 
 .PHONY: purge
 purge: sudo
-	-@sudo umount chroot/code/ly $(NOFAIL)
-	-@sudo rm -rf chroot $(NOFAIL)
+	-@sudo umount .chroot/code/ly $(NOFAIL)
+	-@sudo rm -rf .chroot $(NOFAIL)
+	-@cd ly && sudo $(GIT) clean -fXd
 	-@sudo $(GIT) clean -fXd
 
 .PHONY: deps

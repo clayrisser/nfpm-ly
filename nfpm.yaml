@@ -42,3 +42,6 @@ contents:
     dst: /usr/bin/ly
     file_info:
       mode: 0755
+scripts:
+  postinstall: ./scripts/postinstall.sh
+  postremove: ./scripts/postremove.sh
