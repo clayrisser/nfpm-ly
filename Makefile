@@ -41,11 +41,15 @@ package-deb:
 sudo:
 	@sudo true
 
+.PHONY: debootstrap
+debootstrap: sudo .chroot/bin/bash
+.chroot/bin/bash:
+	@mkdir -p .chroot
+	-@sudo debootstrap $(CODENAME) .chroot
+
 .PHONY: chroot
-chroot: sudo chroot/bin/bash
-chroot/bin/bash:
-	@mkdir -p chroot
-	-@sudo debootstrap $(CODENAME) chroot
+chroot: sudo debootstrap
+	@sudo chroot .chroot
 
 .PHONY: purge
 purge: sudo
@@ -56,6 +60,16 @@ purge: sudo
 .PHONY: deps
 deps: sudo
 	@sudo apt install -y $(shell cat deps.list)
+
+.PHONY: test
+test: sudo usr/bin/ly
+usr/bin/ly: $(shell ls *.deb $(NOFAIL))
+	@cp $< .chroot/tmp
+	@sudo chroot .chroot dpkg -i tmp/$<
+	@sudo chroot .chroot apt install -f
+	@sudo chroot .chroot dpkg -i tmp/$<
+	@[ "$$(sudo chroot .chroot which ly)" = "/usr/bin/ly" ] || (echo TESTS FAILED >&2 && exit 1)
+	@echo TESTS PASSED
 
 -include $(patsubst %,$(_ACTIONS)/%,$(ACTIONS))
 

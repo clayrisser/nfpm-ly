@@ -1,3 +1,3 @@
-*.deb
-*.rpm
-chroot/
+/*.deb
+/*.rpm
+/.chroot
