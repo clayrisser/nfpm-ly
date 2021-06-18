@@ -1,0 +1,7 @@
+conventional-commits: false
+deb:
+  distribution: []
+  urgency: ""
+debug: false
+owner: 'Clay Risser <email@clayrisser.com>'
+package-name: ly

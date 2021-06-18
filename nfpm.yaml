@@ -1,0 +1,42 @@
+# nfpm example config file
+#
+# check https://nfpm.goreleaser.com/configuration for detailed usage
+#
+name: ly
+arch: amd64
+platform: linux
+version: v0.1.0
+section: default
+priority: extra
+replaces: []
+# provides:
+#   - bar
+# depends:
+#   - foo
+#   - bar
+# recommends:
+#   - whatever
+# suggests:
+#   - something-else
+# conflicts:
+#   - not-foo
+#   - not-bar
+maintainer: 'Clay Risser <email@clayrisser.com>'
+description: |
+  display manager with console UI
+vendor: nullgemm
+homepage: https://github.com/nullgemm/ly
+license: "Do What The F*ck You Want To Public License"
+changelog: changelog.yml
+contents:
+  - src: ./includes/etc/ly/ly.tom
+    dst: /etc/ly/ly.tom
+# overrides:
+#   rpm:
+#     scripts:
+#       preinstall: ./scripts/preinstall.sh
+#       postremove: ./scripts/postremove.sh
+#   deb:
+#     scripts:
+#       postinstall: ./scripts/postinstall.sh
+#       preremove: ./scripts/preremove.sh
