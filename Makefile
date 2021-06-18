@@ -2,7 +2,8 @@ export MAKE_CACHE := $(shell pwd)/.make
 export PARENT := true
 include blackmagic.mk
 
-CHROOT := sudo chroot chroot
+CHROOT := sudo chroot .chroot
+DEBFILE := ly_0.1.0_amd64.deb
 CODENAME := $(shell cat /etc/os-release | grep -E "^VERSION=" | \
 	sed 's|^.*(||g' | sed 's|)"$$||g')
 
@@ -14,7 +15,7 @@ all: build
 
 .PHONY: build
 build: ly/bin/ly
-ly/bin/ly:
+ly/bin/ly: ly/makefile
 	@$(MAKE) -s -C ly github
 	@$(MAKE) -s -C ly
 
@@ -27,14 +28,14 @@ changelog:
 	@git-chglog --output CHANGELOG.md
 
 .PHONY: package
-package: build package-rpm package-deb
+package: package-rpm package-deb
 
 .PHONY: package-rpm
-package-rpm:
+package-rpm: ly/bin/ly
 	@nfpm pkg --packager rpm --target .
 
 .PHONY: package-deb
-package-deb:
+package-deb: ly/bin/ly
 	@nfpm pkg --packager deb --target .
 
 .PHONY: sudo
@@ -49,7 +50,7 @@ debootstrap: sudo .chroot/bin/bash
 
 .PHONY: chroot
 chroot: sudo debootstrap
-	@sudo chroot .chroot
+	@$(CHROOT)
 
 .PHONY: purge
 purge: sudo
@@ -61,14 +62,23 @@ purge: sudo
 deps: sudo
 	@sudo apt install -y $(shell cat deps.list)
 
+.PHONY: submodules
+submodules: ly/makefile
+ly/makefile:
+	@git submodule sync
+	@git submodule update --init --remote
+	@git submodule update --init --recursive --remote
+
+%.deb: package-deb
+
 .PHONY: test
 test: sudo usr/bin/ly
-usr/bin/ly: $(shell ls *.deb $(NOFAIL))
+usr/bin/ly: $(DEBFILE) .chroot/bin/bash
 	@cp $< .chroot/tmp
-	@sudo chroot .chroot dpkg -i tmp/$<
-	@sudo chroot .chroot apt install -f
-	@sudo chroot .chroot dpkg -i tmp/$<
-	@[ "$$(sudo chroot .chroot which ly)" = "/usr/bin/ly" ] || (echo TESTS FAILED >&2 && exit 1)
+	-@$(CHROOT) dpkg -i tmp/$<
+	@$(CHROOT) apt install -y -f
+	@$(CHROOT) dpkg -i tmp/$<
+	@[ "$$($(CHROOT) which ly)" = "/usr/bin/ly" ] || (echo TESTS FAILED >&2 && exit 1)
 	@echo TESTS PASSED
 
 -include $(patsubst %,$(_ACTIONS)/%,$(ACTIONS))
