@@ -13,7 +13,8 @@ endif
 all: build
 
 .PHONY: build
-build:
+build: ly/bin/ly
+ly/bin/ly:
 	@$(MAKE) -s -C ly github
 	@$(MAKE) -s -C ly
 
@@ -26,7 +27,7 @@ changelog:
 	@git-chglog --output CHANGELOG.md
 
 .PHONY: package
-package: package-rpm package-deb
+package: build package-rpm package-deb
 
 .PHONY: package-rpm
 package-rpm:
@@ -44,7 +45,7 @@ sudo:
 chroot: sudo chroot/bin/bash
 chroot/bin/bash:
 	@mkdir -p chroot
-	@sudo debootstrap $(CODENAME) chroot
+	-@sudo debootstrap $(CODENAME) chroot
 
 .PHONY: purge
 purge: sudo
@@ -53,14 +54,8 @@ purge: sudo
 	-@sudo $(GIT) clean -fXd
 
 .PHONY: deps
-deps: sudo chroot
-	@$(CHROOT) apt install -y $(shell cat deps.list)
-
-.PHONY: mount
-mount: sudo chroot/code/ly/makefile
-chroot/code/ly/makefile:
-	@sudo mkdir -p chroot/code/ly
-	@sudo mount --bind $(shell pwd)/ly chroot/code/ly
+deps: sudo
+	@sudo apt install -y $(shell cat deps.list)
 
 -include $(patsubst %,$(_ACTIONS)/%,$(ACTIONS))
 

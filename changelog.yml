@@ -1,0 +1,12 @@
+- semver: 0.1.0
+  date: 2021-06-17T19:50:08-05:00
+  packager: Clay Risser <email@clayrisser.com>
+  changes:
+    - commit: 4e2d8b66932d5159a9064a7d01319c2205f9af83
+      note: Initial commit
+      author:
+        name: Clay Risser
+        email: email@clayrisser.com
+      committer:
+        name: Clay Risser
+        email: email@clayrisser.com
