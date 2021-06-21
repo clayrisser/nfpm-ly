@@ -52,8 +52,18 @@ debootstrap: sudo .chroot/bin/bash
 chroot: sudo debootstrap
 	@$(CHROOT)
 
+.PHONY: clean
+clean:
+	-@$(MAKE) -s -C ly clean
+	-@sudo $(GIT) clean -fXd \
+		-e .chroot \
+		-e .chroot/ \
+		-e .chroot/**/* \
+		-e /.chroot \
+		-e /.chroot/**/*
+
 .PHONY: purge
-purge: sudo
+purge: sudo clean
 	-@sudo umount .chroot/code/ly $(NOFAIL)
 	-@sudo rm -rf .chroot $(NOFAIL)
 	-@cd ly && sudo $(GIT) clean -fXd
